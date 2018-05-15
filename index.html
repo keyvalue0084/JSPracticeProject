@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
             <script src="./js/todo.js"></script>
     </head>
 <body>
@@ -10,14 +11,30 @@
 </br>
 </br>
 <h2>미완료</h2>
+<div id="un">
+
+</div>
     <table class='UnCompleted'>
-        
+        <thead>
+            <th></th> 
+            <th>메모</th>
+            <th></th>
+          </thead>
+          <tbody id="unCompletedTbody"></tbody>
     </table>
 </br>
 </br>
+<div id="com">
+
+</div>
 <h2>완료</h2>
     <table class='Completed'>
-        
+        <thead>
+            <th></th>
+            <th>메모</th>
+            <th></th>
+          </thead>
+          <tbody id="completedTbody"></tbody>
     </table>
 </body>
 </html>
