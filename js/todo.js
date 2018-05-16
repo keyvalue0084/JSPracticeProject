@@ -106,7 +106,8 @@ class ElementHandler {
         this.addRow(targetTable,todo);
         //완료<->미완료에 의한 변동이라면 source element 삭제
         if(toggle){
-            let sourceTable =  document.body.querySelector(`.${sourceElementId}`);
+            let sourceTable = 
+             document.body.querySelector(`.${sourceElementId}`);
             this.deleteRow(sourceTable,todo);
         }
     }
@@ -135,7 +136,8 @@ class TodoManager{
     }
     //할일 추가로 부터 만들어지는 todo
     createTodo(){    
-        let comment = document.body.querySelector("input[type='text'][name='comment']");
+        let comment = 
+            document.body.querySelector("input[type='text'][name='comment']");
         if(!comment.value){            
             return;
         }
