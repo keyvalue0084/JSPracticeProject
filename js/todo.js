@@ -1,11 +1,12 @@
-
+//할일 객체
 const Todo = (()=>{
     const idCount = {IDCOUNT:'IDCOUNT'}
     let countValue = 0;
     class Todo{    
         constructor( comment='', isCompleted=false){                    
             this.map = new WeakMap();
-            this.map.set(idCount,'todo-'+countValue++);
+            //각 인스트마다 고유의 ID 할당
+            this.map.set(idCount,'todo-'+countValue++); 
             this._comment = comment;        
             this._isCompleted = isCompleted;
         }
@@ -28,10 +29,93 @@ const Todo = (()=>{
     }
     return Todo;
 })();
+//html 요소를 핸들링 하기위한 클래스
+class ElementHandler {   
+    //가장 가까운 부모 요소를 태그이름으로 찾는다. 
+    getClosestParentsElByTagName(el,tagName){
+        let tmpEl = el;
+        while(!(tmpEl.tagName===tagName)){
+            tmpEl = tmpEl.parentElement;
+        }
+        return tmpEl;
+    } 
+    //row 삭제
+    deleteRow(table,todo){
+        var targetTR = table.querySelector(`tr#${todo.Id}`);
+        if(todo){todo.toggleCompletion();}
+        if(targetTR){targetTR.remove();}        
+    }
+    //row 추가
+    addRow(table,todo,index){
+        let insertIndex = index ? index:table.rows.length;
+        let row = table.insertRow(insertIndex);
+        row.setAttribute('Id',todo.Id);
+        //drag 이벤트 바인딩
+        row.addEventListener('dragstart',(e)=>{
+            row.style.backgroundColor='red'
+            //"todo"의 id를 저장
+            e.dataTransfer.setData("id", row.getAttribute('Id'));
+        });
+        row.addEventListener('dragover',(e)=>{ 
+            e.preventDefault();
+        });        
+        row.addEventListener('dragend',()=>{ 
+            row.style.backgroundColor='';
+        });
+        
+        let dragCell = row.insertCell(0);
+        let dragImg =   document.createElement('img');
+        dragImg.src='./resources/img/drag.png'
+        dragImg.style.height='25px';
+        dragImg.style.width='25px';
+        dragCell.appendChild(dragImg);
 
+        let commentCell = row.insertCell(1);
+        commentCell.innerHTML = todo._comment;
+
+        let buttonCell = row.insertCell(2);   
+        let button= document.createElement("BUTTON");
+        button.style.height='25px';
+        button.style.width='25px';
+        //삭제 버튼에 대한 이벤트 바인딩
+        button.onclick=()=>{
+            var parentsTR = this.getClosestParentsElByTagName(button,'TR');
+            var todoId = parentsTR.getAttribute('Id');
+            tdManager.deleteTodo(todoId);
+            parentsTR.remove();
+        };
+        buttonCell.appendChild(button);
+    }
+    addElement(todo,toggle=false){
+        let targetElementId ='';
+        let sourceElementId = '';
+        let direction = todo._isCompleted;
+        //새로 추가한것인지, 완료<->미완료에 의한 변동인가 판단
+        if(toggle){
+            if(direction) direction=false;
+            else direction=true;
+        }        
+        if(direction){
+            targetElementId='Completed';
+            sourceElementId='UnCompleted'
+        }else{
+            targetElementId='UnCompleted'
+            sourceElementId='Completed'
+        }
+        let targetTable = document.body.querySelector(`.${targetElementId}`);
+        this.addRow(targetTable,todo);
+        //완료<->미완료에 의한 변동이라면 source element 삭제
+        if(toggle){
+            let sourceTable =  document.body.querySelector(`.${sourceElementId}`);
+            this.deleteRow(sourceTable,todo);
+        }
+    }
+}
+//"todo"를 관리하기위한 클래스
 class TodoManager{
     constructor(){
         this._todoList = new Map()
+        this._elHandler = new ElementHandler();
     }
 
     getTotalTodoList(){
@@ -41,123 +125,30 @@ class TodoManager{
         return this._todoList.get(id);
     }
 
-    addTodo(...todos){
-        for(let todo of todos){
-            this._todoList.set(todo.Id,todo);
-            addElement(todo);
-        }
+    addTodo(todo,toggle=false){
+        this._todoList.set(todo.Id,todo);
+        this._elHandler.addElement(todo,toggle);
     }
 
     deleteTodo(Id){
         this._todoList.delete(Id);
     }
+    //할일 추가로 부터 만들어지는 todo
+    createTodo(){    
+        let comment = document.body.querySelector("input[type='text'][name='comment']");
+        let newTodo = new Todo(comment.value,false);
+        tdManager.addTodo(newTodo);
+    }
 
 }
 
 let tdManager = new TodoManager();
-function createTodo(){
-    let comment = $("input[type='text'][name='comment']");
-    let newTodo = new Todo(comment.val(),false);
-    tdManager.addTodo(newTodo);
-}
 
-
-function addElement(todo,toggle=false){
-    let targetElementId ='';
-    let sourceElementId = '';
-    let direction = todo._isCompleted;
-    if(toggle){
-        if(direction) direction=false;
-        else direction=true;
-    }
-    if(direction){
-        targetElementId='Completed';
-        sourceElementId='UnCompleted'
-    }else{
-        targetElementId='UnCompleted'
-        sourceElementId='Completed'
-    }
-    let targetTable = document.body.querySelector(`.${targetElementId}`);
-    addRow(targetTable,todo);
-    if(toggle){
-        let sourceTable =  document.body.querySelector(`.${sourceElementId}`);
-        deleteRow(sourceTable,todo);
-    }
-   
-}
-function deleteRow(table,todo){
-    var targetTR = $(table).find(`tr#${todo.Id}`);
-    var todo = tdManager.getTodo(todo.Id);
-    if(todo){todo.toggleCompletion();}
-    if(targetTR){targetTR.remove();}
-    
-}
-function addRow(table,todo,index){
-    let insertIndex = index ? index:table.rows.length;
-    let row = table.insertRow(insertIndex);
-    row.setAttribute('Id',todo.Id);
-    row.addEventListener('dragstart',handleDragStart);
-    row.addEventListener('dragenter',handleDragEnter);
-    row.addEventListener('dragover',handleDragOver);
-    row.addEventListener('dragleave',handleDragLeave);
-    //row.addEventListener('drop',handleDrop);
-    row.addEventListener('dragend',handleDragEnd);
-    addDragImgCell(row);
-    addCommentCell(row,todo);
-    addButtonCell(row);
-}
-
-function handleDragStart(e){
-    this.style.backgroundColor='red'
-    let tmpTodo = tdManager.getTodo($(this).attr('id'));
-    e.dataTransfer.setData("id", tmpTodo.Id);
-    console.log('DragStart-ID: ',tmpTodo.Id);
-}
-function handleDragEnter(){
-    console.log('enter');
-}
-function handleDragOver(e){
-    e.preventDefault();
-}
-function handleDragLeave(){
-    
-}
 function handleDrop(e){
     let todoId = e.dataTransfer.getData("id");
     let tmpTodo = tdManager.getTodo(todoId);
-    addElement(tmpTodo,true);
-    console.log('Drop-ID: ',todoId);
+    tdManager._elHandler.addElement(tmpTodo,true);
 }
-
-function handleDragEnd(){
-    this.style.backgroundColor=''
-}
-function addDragImgCell(row){
-    let dragCell = row.insertCell(0);
-    let dragImg =   document.createElement('img');
-    dragImg.src='./resources/img/drag.png'
-    dragImg.style.height='25px';
-    dragImg.style.width='25px';
-    dragCell.appendChild(dragImg);
-}
-
-function addCommentCell(row,todo){
-    let commentCell = row.insertCell(1);
-    commentCell.innerHTML = todo._comment;
-}
-
-function addButtonCell(row){
-    let buttonCell = row.insertCell(2);   
-    let button= document.createElement("BUTTON");
-    button.style.height='25px';
-    button.style.width='25px';
-    button.onclick=deleteElement;
-    buttonCell.appendChild(button);
-}
-
-function deleteElement(){
-    var parentsTR = $(this).parents('tr');
-    var todoId = parentsTR.attr('Id');
-    tdManager.deleteTodo(todoId);
-    parentsTR.remove();
+function handleDragOver(e){
+    e.preventDefault();
 }
