@@ -136,6 +136,9 @@ class TodoManager{
     //할일 추가로 부터 만들어지는 todo
     createTodo(){    
         let comment = document.body.querySelector("input[type='text'][name='comment']");
+        if(!comment.value){            
+            return;
+        }
         let newTodo = new Todo(comment.value,false);
         tdManager.addTodo(newTodo);
     }
@@ -143,7 +146,6 @@ class TodoManager{
 }
 
 let tdManager = new TodoManager();
-
 function handleDrop(e){
     let todoId = e.dataTransfer.getData("id");
     let tmpTodo = tdManager.getTodo(todoId);

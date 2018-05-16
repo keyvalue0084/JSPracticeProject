@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-            <script src="./js/todo.js"></script>
+            <script src="./js/todo.js"></script>            
+            <link rel="stylesheet" type="text/css" href="./resources/css/basic.css">
     </head>
 <body>
 
 <h1>할일관리</h1>
-<input type="text" name="comment" /> <input type="submit" name="AddTodo" value="할일추가" onclick="tdManager.createTodo()"/>
+<input type="text" name="comment" required /> <input type="submit" name="AddTodo" value="할일추가" onclick="tdManager.createTodo()"/>
 </br>
 </br>
 <h2>미완료</h2>
@@ -14,14 +15,16 @@
 
 </div>
     <table class='UnCompleted' ondrop="handleDrop(event)" ondragover="handleDragOver(event)"  >
+        <colgroup>
+            <col style="width:70px"/>
+            <col style="width:500px"/>
+            <col style="width:50px"/>
+        </colgroup>
         <tr>
             <th></th> 
             <th>메모</th>
             <th></th>
         </tr>
-            
-        
-          
     </table>
 </br>
 </br>
@@ -30,9 +33,14 @@
 </div>
 <h2>완료</h2>
     <table class='Completed' ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+            <colgroup>
+                <col style="width:70px"/>
+                <col style="width:500px"/>
+                <col style="width:50px"/>
+            </colgroup>
             <tr>
                     <th></th> 
-                    <th>메모</th>
+                    <th class='comment'>메모</th>
                     <th></th>
                 </tr>
     </table>
