@@ -18,35 +18,27 @@ const Todo = (()=>{
         get Id(){
             return this.map.get(idCount);
         }
+        toggleCompletion(){
+            if(this._isCompleted){
+                this._isCompleted=false;
+            }else{
+                this._isCompleted=true;
+            }
+        }
     }
     return Todo;
 })();
 
 class TodoManager{
     constructor(){
-        this._todoList =new Map()
+        this._todoList = new Map()
     }
 
     getTotalTodoList(){
-        return this._tosoList;
+      
     }
-
-    getUnCompletedTodoList(){
-        let tmpArr=[]
-        tdManager._todoList.forEach(function(value,key){
-            if(!value._isCompleted){tmpArr.push(value);}
-        });
-
-        return tmpArr;
-    }
-
-    getCompletedTodoList(){
-        let tmpArr=[]
-        tdManager._todoList.forEach(function(value,key){
-            if(value._isCompleted){tmpArr.push(value);}
-        });
-
-        return tmpArr;
+    getTodo(id){
+        return this._todoList.get(id);
     }
 
     addTodo(...todos){
@@ -69,46 +61,76 @@ function createTodo(){
     tdManager.addTodo(newTodo);
 }
 
-function addElement(todo){
-    let elementId ='';
-    if(todo._isCompleted){
-        elementId='Completed'
-    }else{
-        elementId='UnCompleted'
+
+function addElement(todo,toggle=false){
+    let targetElementId ='';
+    let sourceElementId = '';
+    let direction = todo._isCompleted;
+    if(toggle){
+        if(direction) direction=false;
+        else direction=true;
     }
-    let table = document.body.querySelector(`.${elementId}`);
-    let row = table.insertRow(table.rows.length);
+    if(direction){
+        targetElementId='Completed';
+        sourceElementId='UnCompleted'
+    }else{
+        targetElementId='UnCompleted'
+        sourceElementId='Completed'
+    }
+    let targetTable = document.body.querySelector(`.${targetElementId}`);
+    addRow(targetTable,todo);
+    if(toggle){
+        let sourceTable =  document.body.querySelector(`.${sourceElementId}`);
+        deleteRow(sourceTable,todo);
+    }
+   
+}
+function deleteRow(table,todo){
+    var targetTR = $(table).find(`tr#${todo.Id}`);
+    var todo = tdManager.getTodo(todo.Id);
+    if(todo){todo.toggleCompletion();}
+    if(targetTR){targetTR.remove();}
+    
+}
+function addRow(table,todo,index){
+    let insertIndex = index ? index:table.rows.length;
+    let row = table.insertRow(insertIndex);
     row.setAttribute('Id',todo.Id);
-    row.addEventListener('dragstart',handleDragStart,false);
-    row.addEventListener('dragenter',handleDragEnter,false);
-    row.addEventListener('dragover',handleDragOver,false);
-    row.addEventListener('dragleave',handleDragLeave,false);
-    row.addEventListener('drop',handleDrop,false);
-    row.addEventListener('dragend',handleDragEnd,false);
+    row.addEventListener('dragstart',handleDragStart);
+    row.addEventListener('dragenter',handleDragEnter);
+    row.addEventListener('dragover',handleDragOver);
+    row.addEventListener('dragleave',handleDragLeave);
+    //row.addEventListener('drop',handleDrop);
+    row.addEventListener('dragend',handleDragEnd);
     addDragImgCell(row);
     addCommentCell(row,todo);
     addButtonCell(row);
-  
 }
-function handleDragStart(){
+
+function handleDragStart(e){
     this.style.backgroundColor='red'
-    console.log('start');
+    let tmpTodo = tdManager.getTodo($(this).attr('id'));
+    e.dataTransfer.setData("id", tmpTodo.Id);
+    console.log('DragStart-ID: ',tmpTodo.Id);
 }
 function handleDragEnter(){
     console.log('enter');
 }
 function handleDragOver(e){
-    console.log('over');
+    e.preventDefault();
 }
 function handleDragLeave(){
-    console.log('leave');
+    
 }
-function handleDrop(){
-    console.log('drop');
+function handleDrop(e){
+    let todoId = e.dataTransfer.getData("id");
+    let tmpTodo = tdManager.getTodo(todoId);
+    addElement(tmpTodo,true);
+    console.log('Drop-ID: ',todoId);
 }
+
 function handleDragEnd(){
     this.style.backgroundColor=''
-    console.log('end');
 }
 function addDragImgCell(row){
     let dragCell = row.insertCell(0);

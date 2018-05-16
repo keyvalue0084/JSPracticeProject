@@ -14,13 +14,15 @@
 <div id="un">
 
 </div>
-    <table class='UnCompleted'>
-        <thead>
+    <table class='UnCompleted' ondrop="handleDrop(event)" ondragover="handleDragOver(event)"  >
+        <tr>
             <th></th> 
             <th>메모</th>
             <th></th>
-          </thead>
-          <tbody id="unCompletedTbody"></tbody>
+        </tr>
+            
+        
+          
     </table>
 </br>
 </br>
@@ -28,13 +30,12 @@
 
 </div>
 <h2>완료</h2>
-    <table class='Completed'>
-        <thead>
-            <th></th>
-            <th>메모</th>
-            <th></th>
-          </thead>
-          <tbody id="completedTbody"></tbody>
+    <table class='Completed' ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+            <tr>
+                    <th></th> 
+                    <th>메모</th>
+                    <th></th>
+                </tr>
     </table>
 </body>
 </html>
