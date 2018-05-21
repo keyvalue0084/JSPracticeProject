@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
     <head>
-            <script src="./js/todo.js"></script>            
+                        
+            
+            <script src="./js/todo.js"></script>
+            <script src="./js/TodoHandler.js"></script>
+            <script src="./js/ElementHandler.js"></script>
+            
             <link rel="stylesheet" type="text/css" href="./resources/css/basic.css">
     </head>
 <body>
 
 <h1>할일관리</h1>
-<input type="text" name="comment" required /> <input type="submit" name="AddTodo" value="할일추가" onclick="tdManager.createTodo()"/>
+<input type="text" name="comment" required  style='width:500px'/> <input type="submit" name="AddTodo" value="할일추가" onclick="createTodo()"/></br>
+<textarea class='alertMessage' readonly style='width:500px;border: none;resize: none;'></textarea>
 </br>
 </br>
 <h2>미완료</h2>
@@ -44,5 +50,6 @@
                     <th></th>
                 </tr>
     </table>
+    <script src="./js/globalArea.js"></script>
 </body>
 </html>
